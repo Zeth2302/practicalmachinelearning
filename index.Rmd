@@ -40,37 +40,36 @@ filteredTestProbe <- testProbe[, -badVars][, goodVars]
 ```
 
 ```{r lda, include=FALSE, eval=FALSE}
+crossValidate <- trainControl(method = "cv", number = 5)
 set.seed(71)
-fitLDA <- train(classe ~ ., method = "lda", data = filteredTrain)
-fitLDAWithPCA <- train(classe ~ ., method = "lda", data = filteredTrain,
-                       preProcess = c("pca"), 
-                       trControl = trainControl(preProcOptions = list(thresh = 0.95)))
+fitLDA <- train(classe ~ ., method = "lda", data = filteredTrain, trControl = crossValidate)
+fitLDAWithPCA <- train(classe ~ ., method = "lda", data = filteredTrain, trControl = crossValidate,
+                       preProcess = c("pca"))
 
-fitQDA <- train(classe ~ ., method = "qda", data = filteredTrain)
-fitQDAWithPCA <- train(classe ~ ., method = "qda", data = filteredTrain,
-                       preProcess = c("pca"), 
-                       trControl = trainControl(preProcOptions = list(thresh = 0.95)))
+fitQDA <- train(classe ~ ., method = "qda", data = filteredTrain, trControl = crossValidate)
+fitQDAWithPCA <- train(classe ~ ., method = "qda", data = filteredTrain, trControl = crossValidate,
+                       preProcess = c("pca"))
 ```
 
 ```{r gbm, include=FALSE, eval=FALSE}
 set.seed(73)
-fitGBM <- train(classe ~ ., method = "gbm", data = filteredTrain, verbose = FALSE)
+fitGBM <- train(classe ~ ., method = "gbm", data = filteredTrain, trControl = crossValidate, verbose = FALSE)
 ```
 
 ```{r randomForestFit, include=FALSE, eval=FALSE}
 set.seed(79)
-fitRF <- train(classe ~ ., method = "rf", data = filteredTrain)
+fitRF <- train(classe ~ ., method = "rf", data = filteredTrain, trControl = crossValidate)
 ```
 
 # Overview
 
-Wearable fitness monitors provide a trove of information ready for analysis. One such dataset is hosted by the Groupware research group (http://groupware.les.inf.puc-rio.br/har). It contains measures on the movements of participants' upper arm, lower arm, belt, and from a weight during an exercise routine. These measures are paired with an indicator variable signifying how well the participant was performing the exercise. Our goal here is to develop a classifier using the output of the wearable fitness devices in order to predict the quality of the exercise. Random forests were found to perform best of the tried models with an out of sample error of 0.0078 (accuracy of 99.22%) as measured on a hold out test data set.
+Wearable fitness monitors provide a trove of information ready for analysis. One such dataset is hosted by the Groupware research group (http://groupware.les.inf.puc-rio.br/har). It contains measures on the movements of participants' upper arm, lower arm, belt, and from a weight during an exercise routine. These measures are paired with an indicator variable signifying how well the participant was performing the exercise. Our goal here is to develop a classifier using the output of the wearable fitness devices in order to predict the quality of the exercise. Random forests were found to perform best of the tried models with an out of sample error misclassification rate of 0.53% (accuracy of 99.47%) as measured on a hold out test data set.
 
 The R code for this analysis can be found in the appendix.
 
 ## Feature Selection
 
-Features were selected for inclusion into the models through a combination of analytical methods and softer judgement calls. To begin, variables detected as having near zero variance via caret's `nearZeroVar` function were dropped. This left the user name and sample index columns, which would not generalize well. The current project is the development a general predictor for exercise quality, not a user personalized one. As time series style models were only very briefly touched upon in this course, I decided not to pursue time series models. This led me to drop the timestamp and window columns. Finally, columns with any missing values were excluded. The result of these filters were 49 complete predictors.
+Features were selected for inclusion into the models through a combination of analytical methods and softer judgment calls. To begin, variables detected as having near zero variance via caret's `nearZeroVar` function were dropped. This left the user name and sample index columns, which would not generalize well. The current project is the development a general predictor for exercise quality, not a user personalized one. As time series style models were only very briefly touched upon in this course, I decided not to pursue time series models. This led me to drop the timestamp and window columns. Finally, columns with any missing values were excluded. The result of these filters were 49 complete predictors.
 
 ## Exploration
 
@@ -84,22 +83,22 @@ ggplot(aes(x = roll_forearm, y = yaw_forearm, color = classe), data = filteredTr
 
 ## Modeling
 
-The available training data was first split into a 75% training data set, 12.5% validation set, and 12.5% test set. All algorithms were built on the training data and evaluated with the validation set. The test set was held for the algorithm performing best on the validation set. Linear discriminant analysis (LDA), quadratic discriminant analysis (QDA), stochastic gradient boosting (GBM), and random forests (RF) were the candidate machine learing algorithms The following table holds performance metrics for each of these algorithms.
+The available training data was first split into a 75% training data set, 12.5% validation set, and 12.5% test set. All algorithms were built on the training data and evaluated with the validation set. The test set was held for the algorithm performing best on the validation set. Linear discriminant analysis (LDA), quadratic discriminant analysis (QDA), stochastic gradient boosting (GBM), and random forests (RF) were the candidate machine learning algorithms The following table holds performance metrics for each of these algorithms.
 
 | Algorithm  | Preproccessing | Estimated OOS<br/>Accuracy | Train<br/>Accuracy | Validation<br/>Accuracy | Test<br/>Accuracy |
 |------------|----------------|:--------------------------:|:------------------:|:-----------------------:|:-----------------:|
-| LDA        | --             | 0.6436                     | 0.6484             | 0.6390                  | --                |
-| LDA        | PCA            | 0.5130                     | 0.5099             | 0.5212                  | --                |
-| QDA        | --             | 0.8717                     | 0.8777             | 0.8745                  | --                |
-| QDA        | PCA            | 0.7279                     | 0.7210             | 0.7176                  | --                |
-| GBM        | --             | 0.9500                     | 0.9686             | 0.9560                  | --                |
-| RF         | --             | 0.9880                     | 1.0000             | 0.9951                  | 0.9922            |
+| LDA        | --             | 0.6424                     | 0.6484             | 0.6390                  | --                |
+| LDA        | PCA            | 0.5113                     | 0.5099             | 0.5212                  | --                |
+| QDA        | --             | 0.8696                     | 0.8777             | 0.8745                  | --                |
+| QDA        | PCA            | 0.7218                     | 0.7210             | 0.7176                  | --                |
+| GBM        | --             | 0.9535                     | 0.9689             | 0.9580                  | --                |
+| RF         | --             | 0.9910                     | 1.0000             | 0.9951                  | 0.9947            |
 
-Each of the above models were performed using the caret package's default resampling method to tune the model and acquire an estimate of out of sample (OOS) error. This default setting builds 25 bootstrap data sets by sampling with replacement from the training data. The model building is tuned using these bootstrap training sets and then a final model is built from the best parameters. The caret `confusionMatrix` function was  used with the resulting trained models to evaluate their accuracy on the training, validation, and test sets.
+Each of the above models were tuned using 5-fold cross-validation to tune the model and acquire an estimate of out of sample (OOS) error. The caret `confusionMatrix` function was  used with the resulting trained models to evaluate their accuracy on the training, validation, and test sets.
 
 Modeling attempts began with LDA, a linear classifier. LDA attempts to draw straight lines through the feature space that separates the various outcome categories. This model was found to perform relatively poorly. One explanation for the poor fit is that individual features do not sufficiently separate the cases but that combinations of features might do better. If this is true, then the LDA model might be improved by preprocessing with principle component analysis. PCA would hopefully pick up on the combinations of directions that describe the classes, making LDA's job easier. LDA was thus run again with PCA as a preprocessing step set to retain 95% of the variance in the training data. This model was found to perform worse than LDA without the preprocessing. Quadratic discriminant analysis (QDA) was also tried, again with and without PCA. Though the quadratic form was better than the linear, these models were still relatively weak.
 
-The stochastic gradient boosting (GBM) and random forest (RF) learning algorithm were tried next. Their results were much more encouraging. This is not surprising given the exploration described above. Successful models for this domain would need the ability to divide the feature space in more complex ways than straight lines or quadratic curves allow. Random forests were the best performing model on the validation set. It was thus the sole model evaluated on the test set, achieving an 95% confidence interval of (0.9879, 0.9953) accuracy there.
+The stochastic gradient boosting (GBM) and random forest (RF) learning algorithm were tried next. Their results were much more encouraging. This is not surprising given the exploration described above. Successful models for this domain would need the ability to divide the feature space in more complex ways than straight lines or quadratic curves allow. Random forests were the best performing model on the validation set. It was thus the sole model evaluated on the test set, achieving a 95% confidence interval of (0.9909, 0.9972) accuracy there.
 
 ## Appendix
 

@@ -125,11 +125,11 @@ $(document).ready(function () {
 
 <div id="overview" class="section level1">
 <h1>Overview</h1>
-<p>Wearable fitness monitors provide a trove of information ready for analysis. One such dataset is hosted by the Groupware research group (<a href="http://groupware.les.inf.puc-rio.br/har" class="uri">http://groupware.les.inf.puc-rio.br/har</a>). It contains measures on the movements of participants’ upper arm, lower arm, belt, and from a weight during an exercise routine. These measures are paired with an indicator variable signifying how well the participant was performing the exercise. Our goal here is to develop a classifier using the output of the wearable fitness devices in order to predict the quality of the exercise. Random forests were found to perform best of the tried models with an out of sample error of 0.0078 (accuracy of 99.22%) as measured on a hold out test data set.</p>
+<p>Wearable fitness monitors provide a trove of information ready for analysis. One such dataset is hosted by the Groupware research group (<a href="http://groupware.les.inf.puc-rio.br/har" class="uri">http://groupware.les.inf.puc-rio.br/har</a>). It contains measures on the movements of participants’ upper arm, lower arm, belt, and from a weight during an exercise routine. These measures are paired with an indicator variable signifying how well the participant was performing the exercise. Our goal here is to develop a classifier using the output of the wearable fitness devices in order to predict the quality of the exercise. Random forests were found to perform best of the tried models with an out of sample error misclassification rate of 0.53% (accuracy of 99.47%) as measured on a hold out test data set.</p>
 <p>The R code for this analysis can be found in the appendix.</p>
 <div id="feature-selection" class="section level2">
 <h2>Feature Selection</h2>
-<p>Features were selected for inclusion into the models through a combination of analytical methods and softer judgement calls. To begin, variables detected as having near zero variance via caret’s <code>nearZeroVar</code> function were dropped. This left the user name and sample index columns, which would not generalize well. The current project is the development a general predictor for exercise quality, not a user personalized one. As time series style models were only very briefly touched upon in this course, I decided not to pursue time series models. This led me to drop the timestamp and window columns. Finally, columns with any missing values were excluded. The result of these filters were 49 complete predictors.</p>
+<p>Features were selected for inclusion into the models through a combination of analytical methods and softer judgment calls. To begin, variables detected as having near zero variance via caret’s <code>nearZeroVar</code> function were dropped. This left the user name and sample index columns, which would not generalize well. The current project is the development a general predictor for exercise quality, not a user personalized one. As time series style models were only very briefly touched upon in this course, I decided not to pursue time series models. This led me to drop the timestamp and window columns. Finally, columns with any missing values were excluded. The result of these filters were 49 complete predictors.</p>
 </div>
 <div id="exploration" class="section level2">
 <h2>Exploration</h2>
@@ -141,7 +141,7 @@ $(document).ready(function () {
 </div>
 <div id="modeling" class="section level2">
 <h2>Modeling</h2>
-<p>The available training data was first split into a 75% training data set, 12.5% validation set, and 12.5% test set. All algorithms were built on the training data and evaluated with the validation set. The test set was held for the algorithm performing best on the validation set. Linear discriminant analysis (LDA), quadratic discriminant analysis (QDA), stochastic gradient boosting (GBM), and random forests (RF) were the candidate machine learing algorithms The following table holds performance metrics for each of these algorithms.</p>
+<p>The available training data was first split into a 75% training data set, 12.5% validation set, and 12.5% test set. All algorithms were built on the training data and evaluated with the validation set. The test set was held for the algorithm performing best on the validation set. Linear discriminant analysis (LDA), quadratic discriminant analysis (QDA), stochastic gradient boosting (GBM), and random forests (RF) were the candidate machine learning algorithms The following table holds performance metrics for each of these algorithms.</p>
 <table style="width:100%;">
 <colgroup>
 <col width="10%"></col>
@@ -165,7 +165,7 @@ $(document).ready(function () {
 <tr class="odd">
 <td>LDA</td>
 <td>–</td>
-<td align="center">0.6436</td>
+<td align="center">0.6424</td>
 <td align="center">0.6484</td>
 <td align="center">0.6390</td>
 <td align="center">–</td>
@@ -173,7 +173,7 @@ $(document).ready(function () {
 <tr class="even">
 <td>LDA</td>
 <td>PCA</td>
-<td align="center">0.5130</td>
+<td align="center">0.5113</td>
 <td align="center">0.5099</td>
 <td align="center">0.5212</td>
 <td align="center">–</td>
@@ -181,7 +181,7 @@ $(document).ready(function () {
 <tr class="odd">
 <td>QDA</td>
 <td>–</td>
-<td align="center">0.8717</td>
+<td align="center">0.8696</td>
 <td align="center">0.8777</td>
 <td align="center">0.8745</td>
 <td align="center">–</td>
@@ -189,7 +189,7 @@ $(document).ready(function () {
 <tr class="even">
 <td>QDA</td>
 <td>PCA</td>
-<td align="center">0.7279</td>
+<td align="center">0.7218</td>
 <td align="center">0.7210</td>
 <td align="center">0.7176</td>
 <td align="center">–</td>
@@ -197,24 +197,24 @@ $(document).ready(function () {
 <tr class="odd">
 <td>GBM</td>
 <td>–</td>
-<td align="center">0.9500</td>
-<td align="center">0.9686</td>
-<td align="center">0.9560</td>
+<td align="center">0.9535</td>
+<td align="center">0.9689</td>
+<td align="center">0.9580</td>
 <td align="center">–</td>
 </tr>
 <tr class="even">
 <td>RF</td>
 <td>–</td>
-<td align="center">0.9880</td>
+<td align="center">0.9910</td>
 <td align="center">1.0000</td>
 <td align="center">0.9951</td>
-<td align="center">0.9922</td>
+<td align="center">0.9947</td>
 </tr>
 </tbody>
 </table>
-<p>Each of the above models were performed using the caret package’s default resampling method to tune the model and acquire an estimate of out of sample (OOS) error. This default setting builds 25 bootstrap data sets by sampling with replacement from the training data. The model building is tuned using these bootstrap training sets and then a final model is built from the best parameters. The caret <code>confusionMatrix</code> function was used with the resulting trained models to evaluate their accuracy on the training, validation, and test sets.</p>
+<p>Each of the above models were tuned using 5-fold cross-validation to tune the model and acquire an estimate of out of sample (OOS) error. The caret <code>confusionMatrix</code> function was used with the resulting trained models to evaluate their accuracy on the training, validation, and test sets.</p>
 <p>Modeling attempts began with LDA, a linear classifier. LDA attempts to draw straight lines through the feature space that separates the various outcome categories. This model was found to perform relatively poorly. One explanation for the poor fit is that individual features do not sufficiently separate the cases but that combinations of features might do better. If this is true, then the LDA model might be improved by preprocessing with principle component analysis. PCA would hopefully pick up on the combinations of directions that describe the classes, making LDA’s job easier. LDA was thus run again with PCA as a preprocessing step set to retain 95% of the variance in the training data. This model was found to perform worse than LDA without the preprocessing. Quadratic discriminant analysis (QDA) was also tried, again with and without PCA. Though the quadratic form was better than the linear, these models were still relatively weak.</p>
-<p>The stochastic gradient boosting (GBM) and random forest (RF) learning algorithm were tried next. Their results were much more encouraging. This is not surprising given the exploration described above. Successful models for this domain would need the ability to divide the feature space in more complex ways than straight lines or quadratic curves allow. Random forests were the best performing model on the validation set. It was thus the sole model evaluated on the test set, achieving an 95% confidence interval of (0.9879, 0.9953) accuracy there.</p>
+<p>The stochastic gradient boosting (GBM) and random forest (RF) learning algorithm were tried next. Their results were much more encouraging. This is not surprising given the exploration described above. Successful models for this domain would need the ability to divide the feature space in more complex ways than straight lines or quadratic curves allow. Random forests were the best performing model on the validation set. It was thus the sole model evaluated on the test set, achieving a 95% confidence interval of (0.9909, 0.9972) accuracy there.</p>
 </div>
 <div id="appendix" class="section level2">
 <h2>Appendix</h2>
@@ -242,26 +242,25 @@ filteredTestProbe &lt;- testProbe[, -badVars][, goodVars]</code></pre>
 </div>
 <div id="linear-and-quadratic-discriminant-analysis" class="section level3">
 <h3>Linear and Quadratic Discriminant Analysis</h3>
-<pre class="r"><code>set.seed(71)
-fitLDA &lt;- train(classe ~ ., method = &quot;lda&quot;, data = filteredTrain)
-fitLDAWithPCA &lt;- train(classe ~ ., method = &quot;lda&quot;, data = filteredTrain,
-                       preProcess = c(&quot;pca&quot;), 
-                       trControl = trainControl(preProcOptions = list(thresh = 0.95)))
+<pre class="r"><code>crossValidate &lt;- trainControl(method = &quot;cv&quot;, number = 5)
+set.seed(71)
+fitLDA &lt;- train(classe ~ ., method = &quot;lda&quot;, data = filteredTrain, trControl = crossValidate)
+fitLDAWithPCA &lt;- train(classe ~ ., method = &quot;lda&quot;, data = filteredTrain, trControl = crossValidate,
+                       preProcess = c(&quot;pca&quot;))
 
-fitQDA &lt;- train(classe ~ ., method = &quot;qda&quot;, data = filteredTrain)
-fitQDAWithPCA &lt;- train(classe ~ ., method = &quot;qda&quot;, data = filteredTrain,
-                       preProcess = c(&quot;pca&quot;), 
-                       trControl = trainControl(preProcOptions = list(thresh = 0.95)))</code></pre>
+fitQDA &lt;- train(classe ~ ., method = &quot;qda&quot;, data = filteredTrain, trControl = crossValidate)
+fitQDAWithPCA &lt;- train(classe ~ ., method = &quot;qda&quot;, data = filteredTrain, trControl = crossValidate,
+                       preProcess = c(&quot;pca&quot;))</code></pre>
 </div>
 <div id="stochastic-gradient-boosting" class="section level3">
 <h3>Stochastic Gradient Boosting</h3>
 <pre class="r"><code>set.seed(73)
-fitGBM &lt;- train(classe ~ ., method = &quot;gbm&quot;, data = filteredTrain, verbose = FALSE)</code></pre>
+fitGBM &lt;- train(classe ~ ., method = &quot;gbm&quot;, data = filteredTrain, trControl = crossValidate, verbose = FALSE)</code></pre>
 </div>
 <div id="random-forests" class="section level3">
 <h3>Random Forests</h3>
 <pre class="r"><code>set.seed(79)
-fitRF &lt;- train(classe ~ ., method = &quot;rf&quot;, data = filteredTrain)</code></pre>
+fitRF &lt;- train(classe ~ ., method = &quot;rf&quot;, data = filteredTrain, trControl = crossValidate)</code></pre>
 </div>
 </div>
 </div>
